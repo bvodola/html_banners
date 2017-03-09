@@ -1,0 +1,105 @@
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="../js/jquery.ajax-cross-origin.min.js"></script>
+
+<script>
+  // ==============
+  // Main Variables
+  // ==============
+  var dom;
+  var products = [];
+
+  // =============
+  // Configuration
+  // =============
+  var showPrice = true;
+  var numberOfProducts = 4;
+  var productMarginTop = '10px';
+  var roundImage = true;
+
+  $.ajax({
+      crossOrigin: true,
+      url: 'https://www.saibala.com.br',
+      success: function(data) {
+          dom = data;
+          var url_prefix = 'https://saibala.com.br/'
+          $($(dom).find('#box-videos-index').find('.box-video')).each(function(i, el) {
+            product = {}
+            product.img = url_prefix+$($(el).find('img')[0]).attr('src');
+            product.link = url_prefix+$($(el).find('a')[0]).attr('href');
+            product.title = $($(el).find('.curso-title a')[0]).text();
+            product.price = '';
+            products.push(product);
+          });
+          for(i=0; i<numberOfProducts; i++) {
+            var imageHTML = '<img src="'+products[i].img+'" alt="product" style="height: 45px;width: auto;margin: 5px 0 10px 0;'+(roundImage?'border-radius: 100%;':'')+'">';
+            var titleHTML = '<h2 style="font-size: 11px;font-weight: normal;margin: 0;line-height: 13px;">'+products[i].title+'</h2>';
+            var priceHTML = showPrice?'<p class="product-price" style="font-size: 12px;background: rgba(104,159,56,0.7);margin: 0;line-height: 12px;font-weight: bold;position: absolute;top: 36px;right: 39px;color: #fff;padding: 3px;">'+products[i].price+'</p>':'';
+            $('.products').append('<div style="width: 21%; position: relative; float: left; margin-top: '+productMarginTop+'"><a target="_blank" href="'+products[i].link+'" style="text-decoration: none;">'+imageHTML+titleHTML+priceHTML+'</a></div>');
+          }
+
+          // ===================
+          // Custom Price Getter
+          // ===================
+          var j = 0;
+          function getProductPrice() {
+            $.ajax({
+              crossOrigin: true,
+              url: products[j].link,
+              success: function(data2) {
+                var price = $(data2).find('a.btn-fundo-verde-grande.btn-signup').text().split('R$ ')[1];
+                console.log(price);
+                products[j].price = price;
+                console.log(j, products[j]);
+                $($('.product-price')[j]).text('R$ '+price);
+                console.log($('.product-price')[j]);
+                j++;
+                if(j<numberOfProducts) getProductPrice();
+              }
+            });
+          }
+          getProductPrice();
+      }
+  });
+
+
+</script>
+
+<div class="products" style="
+  width: 726px;
+  height: 88px;
+  border: 1px dashed #999;
+  font-family: arial;
+  text-align: center;
+">
+
+  <!-- **** -->
+  <!-- Logo -->
+  <!-- **** -->
+  <div style="
+    width: 16%;
+    position: relative;
+    float: left;
+
+    top: 50%;
+    transform: translateY(-50%);
+    -webkit-transform: translateY(-50%);
+  ">
+    <img src="https://saibala.com.br/images/logo.png" alt="logo" style="
+      width: 80%;
+      height: auto;
+      max-height: 80px;
+    ">
+    <span style="
+      font-size: 10px;
+      margin: 5px 0 0 19px;
+      position: relative;
+      float: left;
+      color: #999;
+      text-transform: uppercase;
+      font-weight: bold;
+    ">
+      Cursos Online
+    </span>
+  </div>
+</div>
